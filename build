@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -e -x
+
+# Set HOME Path
+HOME="${PWD}"
+
+# Work Path
+WORK="${HOME}/work"
+
+# Kernel Source
+KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_realme_messi"
+
+# Kernel Branch
+KERNEL_BRANCH="messi-staging"
+
+# Kernel Folder Name - Don't change
+KERNEL="messi"
+
+# Kernel Source Path
+KERNEL_SRC="${WORK}/${KERNEL}"
+
+# Clang URL - Change the version, depends on your kernel source.
+CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12L-release/clang-r383902.tar.gz"
+
+# Utilities URL x86_x64 - Change it depends on your preference.
+BINUTILS_x64="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9"
+x64_BRANCH="android12L-release"
+BINUTILS_x32="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
+x32_BRANCH="android12L-release"
+
+# Prepare Directory
+mkdir -p "${WORK}"
+cd "${WORK}" || exit 1
+
+# Cloning all the Necessary files
+if [ ! -d clang ]; then mkdir clang && curl -Lsq "${CLANG_TAR_URL}" -o clang.tgz && tar -xzf clang.tgz -C clang; fi
+[ ! -d binutils-64 ] && git clone --depth=1 "${BINUTILS_x64}" -b ${x64_BRANCH} binutils-64
+[ ! -d binutils-32 ] && git clone --depth=1 "${BINUTILS_x32}" -b ${x32_BRANCH} binutils-32
+[ ! -d ${KERNEL} ] && git clone --depth=1 "${KERNEL_SOURCE_URL}" -b ${KERNEL_BRANCH} ${KERNEL}
+
+# Setting Toolchain Path
+PATH="${WORK}/clang/bin:${WORK}/binutils-64/bin:${WORK}/binutils-32/bin:/bin"
+
+# Preparing Build Process
+cd "${KERNEL_SRC}" || exit 1
+
+# Android Cross-Compile Make_Function
+make_fun() {
+	make O=out ARCH=arm64 \
+                LLVM_IAS=1 \
+		CC=clang HOSTCC=clang \
+		CLANG_TRIPLE=aarch64-linux-gnu- \
+		CROSS_COMPILE=aarch64-linux-android- \
+		CROSS_COMPILE_ARM32=arm-linux-androideabi- "$@" 
+}
+
+# Prepare _defconfig - Change it base on your choice in arm/../configs/
+make_fun vendor/bengal_defconfig
+
+# Start Compiling Kernel
+make_fun -j4 2>&1 | tee build.log
