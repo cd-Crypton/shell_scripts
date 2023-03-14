@@ -2,26 +2,27 @@
 
 set -e -x
 
-# Set HOME Path
+# Note: This specific script was used in GitPod IDE in GitHub, change directory/path incase you'll use it.
+# Note: This script is based/from thecatvoid's build script: https://github.com/thecatvoid/actions_kernel_build
+
+# Set HOME Path, it call your current root directory as your HOME dir.
 HOME="${PWD}"
 
-# Work Path
+# Work Path, this will be your main working folder.
 WORK="${HOME}/work"
 
-# Kernel Source
+# Kernel Source, this should be your kernel source repository and it's branch.
 KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_realme_messi"
-
-# Kernel Branch
 KERNEL_BRANCH="messi-staging"
 
-# Kernel Folder Name - Don't change
+# Kernel/Device Name, change it based on your device, of course.
 KERNEL="messi"
 
-# Kernel Source Path
+# Kernel Source Path, this will be your kernel source directory after clone.
 KERNEL_SRC="${WORK}/${KERNEL}"
 
 # Clang URL - Change the version, depends on your kernel source.
-CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12L-release/clang-r383902.tar.gz"
+CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12L-release/clang-r416183b1.tar.gz"
 
 # Utilities URL x86_x64 - Change it depends on your preference.
 BINUTILS_x64="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9"
@@ -40,15 +41,21 @@ if [ ! -d clang ]; then mkdir clang && curl -Lsq "${CLANG_TAR_URL}" -o clang.tgz
 [ ! -d ${KERNEL} ] && git clone --depth=1 "${KERNEL_SOURCE_URL}" -b ${KERNEL_BRANCH} ${KERNEL}
 
 # Setting Toolchain Path
-PATH="${WORK}/clang/bin:${WORK}/binutils-64/bin:${WORK}/binutils-32/bin:/bin"
+PATH="${WORK}/clang/bin:${WORK}/binutils-64/bin:${WORK}/binutils-32/bin:/bin:${PATH}"
 
 # Preparing Build Process
 cd "${KERNEL_SRC}" || exit 1
 
-# Android Cross-Compile Make_Function
+# Export Additional Information, change it all according to your wants.
+export KBUILD_BUILD_HOST="${KERNEL}"
+export KBUILD_BUILD_USER="cd-Crypton"
+
+# Cleanup OUT Directory, in case there's already out folder.
+make clean
+
+# Create Make Function
 make_fun() {
-	make O=out ARCH=arm64 \
-                LLVM_IAS=1 \
+    make O=out ARCH=arm64 \
 		CC=clang HOSTCC=clang \
 		CLANG_TRIPLE=aarch64-linux-gnu- \
 		CROSS_COMPILE=aarch64-linux-android- \
@@ -58,5 +65,5 @@ make_fun() {
 # Prepare _defconfig - Change it base on your choice in arm/../configs/
 make_fun vendor/bengal_defconfig
 
-# Start Compiling Kernel
-make_fun -j4 2>&1 | tee build.log
+# Start Compiling Kernel with build.log
+make_fun -j"$(nproc --all)" 2>&1 | tee build.log
