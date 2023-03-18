@@ -13,7 +13,7 @@ WORK="${HOME}/work"
 
 # Kernel Source, this should be your kernel source repository and it's branch.
 KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_realme_messi"
-KERNEL_BRANCH="messi-staging"
+KERNEL_BRANCH="messi-12.3"
 
 # Kernel/Device Name, change it based on your device, of course.
 KERNEL="messi"
@@ -22,7 +22,7 @@ KERNEL="messi"
 KERNEL_SRC="${WORK}/${KERNEL}"
 
 # Clang URL - Change the version, depends on your kernel source.
-CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12L-release/clang-r416183b1.tar.gz"
+CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12L-release/clang-r383902.tar.gz"
 
 # Utilities URL x86_x64 - Change it depends on your preference.
 BINUTILS_x64="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9"
