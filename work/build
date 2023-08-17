@@ -15,11 +15,11 @@ HOME="${PWD}"
 WORK="${HOME}/work"
 
 # Kernel Source, this should be your kernel source repository and it's branch.
-KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_realme_sm6225"
-KERNEL_BRANCH="thirteen-main"
+KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_oneplus_sm6225"
+KERNEL_BRANCH="android13-staging"
 
 # Kernel/Device Name, change it based on your device, of course.
-KERNEL="sm6225"
+KERNEL="kernel"
 
 # Kernel Source Path, this will be your kernel source directory after clone.
 KERNEL_SRC="${WORK}/${KERNEL}"
@@ -28,10 +28,8 @@ KERNEL_SRC="${WORK}/${KERNEL}"
 CLANG_TAR_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android12-release/clang-r416183b.tar.gz"
 
 # Utilities URL x86_x64 - Change it depends on your preference.
-BINUTILS_x64="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9"
-x64_BRANCH="android-12.1.0_r27"
-BINUTILS_x32="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
-x32_BRANCH="android12.1.0_r27"
+GAS_BIN="https://android.googlesource.com/platform/prebuilts/gas/linux-x86"
+GAS_BRANCH="android-12.1.0_r0.27"
 
 # Prepare Directory
 mkdir -p "${WORK}"
@@ -39,35 +37,29 @@ cd "${WORK}" || exit 1
 
 # Cloning all the Necessary files
 if [ ! -d .clang ]; then mkdir .clang && curl -Lsq "${CLANG_TAR_URL}" -o clang.tgz && tar -xzf clang.tgz -C .clang; fi
-[ ! -d .binutils-64 ] && git clone --depth=1 "${BINUTILS_x64}" -b ${x64_BRANCH} .binutils-64
-[ ! -d .binutils-32 ] && git clone --depth=1 "${BINUTILS_x32}" -b ${x32_BRANCH} .binutils-32
+[ ! -d .gas ] && git clone --depth=1 "${GAS_BIN}" -b ${GAS_BRANCH} .gas
 [ ! -d ${KERNEL} ] && git clone --depth=1 "${KERNEL_SOURCE_URL}" -b ${KERNEL_BRANCH} ${KERNEL}
 
 # Setting Toolchain Path
-PATH="${WORK}/.clang/bin:${WORK}/.binutils-64/bin:${WORK}/.binutils-32/bin:/bin:${PATH}"
-
-# Preparing Build Process
-cd "${KERNEL_SRC}" || exit 1
-
-# Export Additional Information, change it all according to your wants.
-export KBUILD_BUILD_HOST="${KERNEL}"
-export KBUILD_BUILD_USER="cd-Crypton"
+PATH="${WORK}/.clang/bin:${WORK}/.gas:/bin:${PATH}"
 
 # Cleanup OUT Directory, in case there's already out folder.
 rm -rf out
 rm -rf build.log
+rm -rf clang.tgz
+
+# Preparing Build Process
+cd "${KERNEL_SRC}" || exit 1
 
 # Create Make Function
 make_fun() {
-    make O=out ARCH=arm64 \
-		CC=clang HOSTCC=clang \
-		CLANG_TRIPLE=aarch64-linux-gnu- \
-		CROSS_COMPILE=aarch64-linux-android- \
-		CROSS_COMPILE_ARM32=arm-linux-androideabi- "$@" 
+    make O=${WORK}/out ARCH=arm64 LLVM=1 \
+		CROSS_COMPILE=aarch64-linux-gnu- \
+		CROSS_COMPILE_COMPAT=arm-linux-gnueabi- "$@" 
 }
 
 # Prepare _defconfig - Change it base on your choice in arm/../configs/
-make_fun vendor/bengal-custom_defconfig vendor/bengal-oplus.config
+make_fun vendor/bengal-stock_defconfig
 
 # Start Compiling Kernel with build.log
-make_fun -j3 2>&1 | tee build.log
+make_fun -j3 2>&1 | tee ../../build.log
