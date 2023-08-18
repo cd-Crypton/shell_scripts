@@ -78,7 +78,7 @@ fi
 
 # Zip Kernel, DO NOT FORGET TO CHANGE DEVICE NAME TARGET
 cd ${WORK}/AnyKernel3
-rm -rf Image*
+rm -rf Image* *AnyKernel*.zip
 git restore .
 dates="$(date +%F+%T%z)"
 sed -i 's/maguro/RMX3521/' anykernel.sh
