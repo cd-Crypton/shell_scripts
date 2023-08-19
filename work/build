@@ -16,7 +16,7 @@ WORK="${HOME}/work"
 
 # Kernel Source, this should be your kernel source repository and it's branch.
 KERNEL_SOURCE_URL="https://github.com/cd-Crypton/android_kernel_oneplus_sm6225"
-KERNEL_BRANCH="android13-staging"
+KERNEL_BRANCH="4.19.157-07700"
 
 # Kernel/Device Name, change it based on your device, of course.
 KERNEL="kernel"
@@ -49,10 +49,11 @@ if [ ! -d .clang ]; then mkdir .clang && curl -Lsq "${CLANG_TAR_URL}" -o clang.t
 PATH="${WORK}/.clang/bin:${WORK}/.gas:/bin:${PATH}"
 
 # Cleanup OUT Directory, in case there's already out folder.
-rm -rf clang.tgz
+rm -rf clang.tgz out
 
 # Preparing Build Process
 cd "${KERNEL_SRC}" || exit 1
+git pull
 
 # Create Make Function
 make_fun() {
@@ -78,7 +79,7 @@ fi
 
 # Zip Kernel, DO NOT FORGET TO CHANGE DEVICE NAME TARGET
 cd ${WORK}/AnyKernel3
-rm -rf Image* *AnyKernel*.zip transfer.txt tg.html
+rm -rf *AnyKernel*.zip transfer.txt tg.html
 git restore .
 dates="$(date +%F+%T%z)"
 sed -i 's/maguro/RMX3521/' anykernel.sh
