@@ -6,6 +6,9 @@
 **/gcc-64/
 **/gcc-32/
 **/out/
+**/oem_kernel/
+**/clo_kernel/
+**/ack_kernel/
 .vscode/
 .venv/
 
