@@ -1,0 +1,15 @@
+# Ignore Dirs
+**/build_kernel/
+**/AnyKernel3/
+**/clang/
+**/gas/
+**/gcc-64/
+**/gcc-32/
+**/out/
+.vscode/
+.venv/
+
+# Ignore Files
+**/clang.tgz
+**/build.log
+**/transfer.txt
