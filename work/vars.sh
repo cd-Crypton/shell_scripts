@@ -25,4 +25,4 @@ KERNEL_DIR="build_kernel" # for build.sh
 OEM_KERNEL_DIR="oem_kernel" # for rebase.sh
 CLO_VENDOR_DIR="clo_vendor" # for rebase.sh
 CLO_KERNEL_DIR="clo_kernel" # for rebase.sh
-CLO_KERNEL_DIR="ack_kernel" # for rebase.sh
+ACK_KERNEL_DIR="ack_kernel" # for rebase.sh
