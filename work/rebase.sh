@@ -28,7 +28,7 @@ else
           # Clone the OEM Kernel Source
           cd ${PROJECT_DIR}
           if [ ! -d "${OEM_KERNEL_DIR}" ]; then
-               git clone --depth=1 --single-branch $oem_kernel_scr -b $oem_kernel_brnch ${OEM_KERNEL_DIR}
+               git clone --depth=1 --single-branch $oem_kernel_src -b $oem_kernel_brnch ${OEM_KERNEL_DIR}
           else
                echo "OEM kernel already exist!"
           fi
